@@ -1,0 +1,7 @@
+# Auto Configure
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.example.bingo.autoconfigure.SafetyEncryptProcessor
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.example.bingo.autoconfigure.IdentifierGeneratorAutoConfiguration,\
+  com.example.bingo.autoconfigure.MybatisPlusLanguageDriverAutoConfiguration,\
+  com.example.bingo.autoconfigure.MybatisPlusAutoConfiguration

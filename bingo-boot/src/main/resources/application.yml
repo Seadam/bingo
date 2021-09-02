@@ -1,0 +1,17 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /bingo
+spring:
+  application:
+    name: 'bingo'
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://10.18.55.182:3306/mjb_product_fssc_dev?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: prod_dev
+    password: 'Prod#1234'
+mybatis:
+  configuration:
+    mapUnderscoreToCamelCase: true
+mybatis-plus:
+  mapper-locations: classpath*:META-INF/mybatis/*Mapper.xml
