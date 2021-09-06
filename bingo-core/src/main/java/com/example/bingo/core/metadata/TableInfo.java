@@ -17,11 +17,15 @@ package com.example.bingo.core.metadata;
 
 import com.example.bingo.annotation.IdType;
 import com.example.bingo.annotation.KeySequence;
+import com.example.bingo.annotation.TableField;
+import com.example.bingo.annotation.TableId;
 import com.example.bingo.core.toolkit.Assert;
 import com.example.bingo.core.toolkit.CollectionUtils;
 import com.example.bingo.core.toolkit.Constants;
 import com.example.bingo.core.toolkit.StringUtils;
 import com.example.bingo.core.toolkit.sql.SqlScriptUtils;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -95,6 +99,10 @@ public class TableInfo implements Constants {
      * 表字段信息列表
      */
     private List<TableFieldInfo> fieldList;
+    /**
+     * 表字段信息列表
+     */
+    private TableFieldInfo primaryKey;
     /**
      * 命名空间 (对应的 mapper 接口的全类名)
      */
@@ -312,6 +320,23 @@ public class TableInfo implements Constants {
         return getKeyInsertSqlProperty(newPrefix, true) + fieldList.stream()
             .map(i -> i.getInsertSqlPropertyMaybeIf(newPrefix)).filter(Objects::nonNull).collect(joining(NEWLINE));
     }
+    /**
+     * 获取所有 insert 时候插入值 sql 脚本片段
+     * <p>insert into table (字段) values (值)</p>
+     * <p>位于 "值" 部位</p>
+     *
+     * <li> 自动选部位,根据规则会生成 if 标签 </li>
+     *
+     * @return sql 脚本片段
+     */
+    public String getAllInsertSqlPropertyIncPkMaybeIf(final String prefix) {
+        final String newPrefix = prefix == null ? EMPTY : prefix;
+        List<TableFieldInfo> list = new ArrayList<>();
+        list.add(primaryKey);
+        list.addAll(fieldList);
+        return getKeyInsertSqlProperty(newPrefix, true) + list.stream()
+            .map(i -> i.getInsertSqlPropertyMaybeIf(newPrefix)).filter(Objects::nonNull).collect(joining(NEWLINE));
+    }
 
     /**
      * 获取 insert 时候字段 sql 脚本片段
@@ -325,6 +350,23 @@ public class TableInfo implements Constants {
     public String getAllInsertSqlColumnMaybeIf(final String prefix) {
         final String newPrefix = prefix == null ? EMPTY : prefix;
         return getKeyInsertSqlColumn(true) + fieldList.stream().map(i -> i.getInsertSqlColumnMaybeIf(newPrefix))
+            .filter(Objects::nonNull).collect(joining(NEWLINE));
+    }
+    /**
+     * 获取 insert 时候字段 sql 脚本片段
+     * <p>insert into table (字段) values (值)</p>
+     * <p>位于 "字段" 部位</p>
+     *
+     * <li> 自动选部位,根据规则会生成 if 标签 </li>
+     *
+     * @return sql 脚本片段
+     */
+    public String getAllInsertSqlColumnIncPkMaybeIf(final String prefix) {
+        final String newPrefix = prefix == null ? EMPTY : prefix;
+        List<TableFieldInfo> list = new ArrayList<>();
+        list.add(primaryKey);
+        list.addAll(fieldList);
+        return getKeyInsertSqlColumn(true) + list.stream().map(i -> i.getInsertSqlColumnMaybeIf(newPrefix))
             .filter(Objects::nonNull).collect(joining(NEWLINE));
     }
 
@@ -371,6 +413,34 @@ public class TableInfo implements Constants {
                 }
                 return true;
             }).map(i -> i.getSqlSet(newPrefix)).filter(Objects::nonNull).collect(joining(NEWLINE));
+    }
+    /**
+     * 获取所有的 sql set 片段
+     *
+     * @param ignoreLogicDelFiled 是否过滤掉逻辑删除字段
+     * @param prefix              前缀
+     * @return sql 脚本片段
+     */
+    public String getAllSqlSetIncludePk(boolean ignoreLogicDelFiled, final String prefix) {
+        final String newPrefix = prefix == null ? EMPTY : prefix;
+        List<TableFieldInfo> allFields = new ArrayList<>();
+        allFields.add(primaryKey);
+        allFields.addAll(fieldList);
+        return allFields.stream()
+            .filter(i -> {
+                if (ignoreLogicDelFiled) {
+                    return !(isWithLogicDelete() && i.isLogicDelete());
+                }
+                return true;
+            }).map(i -> {
+                if (i.getColumn().equals(primaryKey.getColumn())) {
+                    return i.getSqlSet(newPrefix).replace(",</if>", "</if>");
+                } else {
+                    return i.getSqlSet(newPrefix).replace(",</if>", "</if>")
+                            .replace("null\">", "null\">, ");
+                }
+                })
+                .filter(Objects::nonNull).collect(joining(NEWLINE));
     }
 
     /**

@@ -31,7 +31,11 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.reflection.Reflector;
 import org.apache.ibatis.reflection.ReflectorFactory;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeHandler;
+import org.apache.ibatis.type.UnknownTypeHandler;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -299,6 +303,7 @@ public class TableInfoHelper {
                         throw ExceptionUtils.mpe("@TableId can't more than one in Class: \"%s\".", clazz.getName());
                     } else {
                         initTableIdWithAnnotation(dbConfig, tableInfo, field, tableId, reflector);
+                        tableInfo.setPrimaryKey(new TableFieldInfo(dbConfig, tableInfo, field, convertTableField(tableId), reflector, existTableLogic, existOrderBy));
                         isReadPK = true;
                         continue;
                     }
@@ -328,6 +333,86 @@ public class TableInfoHelper {
         if (!isReadPK) {
             logger.warn(String.format("Can not find table primary key in Class: \"%s\".", clazz.getName()));
         }
+    }
+
+    private static TableField convertTableField(TableId tableId) {
+        return new TableField() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public String value() {
+                return tableId.value();
+            }
+
+            @Override
+            public boolean exist() {
+                return true;
+            }
+
+            @Override
+            public String condition() {
+                return "";
+            }
+
+            @Override
+            public String update() {
+                return "";
+            }
+
+            @Override
+            public FieldStrategy insertStrategy() {
+                return com.example.bingo.annotation.FieldStrategy.DEFAULT;
+            }
+
+            @Override
+            public FieldStrategy updateStrategy() {
+                return com.example.bingo.annotation.FieldStrategy.DEFAULT;
+            }
+
+            @Override
+            public FieldStrategy whereStrategy() {
+                return com.example.bingo.annotation.FieldStrategy.DEFAULT;
+            }
+
+            @Override
+            public FieldFill fill() {
+                return null;
+            }
+
+            @Override
+            public boolean select() {
+                return true;
+            }
+
+            @Override
+            public boolean keepGlobalFormat() {
+                return false;
+            }
+
+            @Override
+            public JdbcType jdbcType() {
+                return JdbcType.UNDEFINED;
+            }
+
+            @Override
+            public Class<? extends TypeHandler> typeHandler() {
+                return UnknownTypeHandler.class;
+            }
+
+            @Override
+            public boolean javaType() {
+                return false;
+            }
+
+            @Override
+            public String numericScale() {
+                return "";
+            }
+        };
     }
 
     /**

@@ -34,6 +34,7 @@ public class DefaultSqlInjector extends AbstractSqlInjector {
     public List<AbstractMethod> getMethodList(Class<?> mapperClass) {
         return Stream.of(
             new Insert(),
+            new InsertOrUpdate(),
             new Delete(),
             new DeleteByMap(),
             new DeleteById(),

@@ -90,6 +90,13 @@ public interface BaseMapper<T> extends Mapper<T> {
     int insert(T entity);
 
     /**
+     * 插入或者更新记录 ###NOTE：实体非空字段必须有值，否则报错
+     *
+     * @param entity 实体对象
+     */
+    int insertOrUpdate(T entity);
+
+    /**
      * 根据 ID 删除
      *
      * @param id 主键ID
@@ -173,6 +180,13 @@ public interface BaseMapper<T> extends Mapper<T> {
      * @param queryWrapper 实体对象封装操作类（可以为 null）
      */
     List<T> selectList(@Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
+
+    /**
+     * 根据 entity 条件，查询两行记录
+     *
+     * @param queryWrapper 实体对象封装操作类（可以为 null）
+     */
+    List<T> selectTwo(@Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
 
     /**
      * 根据 Wrapper 条件，查询全部记录

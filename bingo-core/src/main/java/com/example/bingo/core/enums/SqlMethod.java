@@ -26,6 +26,8 @@ public enum SqlMethod {
      * 插入
      */
     INSERT_ONE("insert", "插入一条数据（选择字段插入）", "<script>\nINSERT INTO %s %s VALUES %s\n</script>"),
+    INSERT_OR_UPDATE("insertOrUpdate", "插入或者更新（选择字段插入）", "<script>\nINSERT INTO %s %s VALUES %s\n on duplicate key " +
+            "\nUPDATE %s \n</script>"),
     UPSERT_ONE("upsert", "Phoenix插入一条数据（选择字段插入）", "<script>\nUPSERT INTO %s %s VALUES %s\n</script>"),
 
     /**
@@ -64,6 +66,7 @@ public enum SqlMethod {
     SELECT_ONE("selectOne", "查询满足条件一条数据", "<script>%s SELECT %s FROM %s %s %s\n</script>"),
     SELECT_COUNT("selectCount", "查询满足条件总记录数", "<script>%s SELECT COUNT(%s) FROM %s %s %s\n</script>"),
     SELECT_LIST("selectList", "查询满足条件所有数据", "<script>%s SELECT %s FROM %s %s %s %s\n</script>"),
+    SELECT_TWO("selectTwo", "查询满足条件两行数据", "<script>%s SELECT %s FROM %s %s %s %s %s\n</script>"),
     SELECT_PAGE("selectPage", "查询满足条件所有数据（并翻页）", "<script>%s SELECT %s FROM %s %s %s %s\n</script>"),
     SELECT_MAPS("selectMaps", "查询满足条件所有数据", "<script>%s SELECT %s FROM %s %s %s %s\n</script>"),
     SELECT_MAPS_PAGE("selectMapsPage", "查询满足条件所有数据（并翻页）", "<script>\n %s SELECT %s FROM %s %s %s %s\n</script>"),

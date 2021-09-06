@@ -111,6 +111,30 @@ public abstract class AbstractMethod implements Constants {
         sqlScript = SqlScriptUtils.convertSet(sqlScript);
         return sqlScript;
     }
+    /**
+     * SQL 更新 set 语句
+     *
+     * @param logic  是否逻辑删除注入器
+     * @param ew     是否存在 UpdateWrapper 条件
+     * @param table  表信息
+     * @param alias  别名
+     * @param prefix 前缀
+     * @return sql
+     */
+    protected String sqlSetIncludePk(boolean logic, boolean ew, TableInfo table, boolean judgeAliasNull, final String alias,
+                            final String prefix) {
+        String sqlScript = table.getAllSqlSetIncludePk(logic, prefix);
+        if (judgeAliasNull) {
+            sqlScript = SqlScriptUtils.convertIf(sqlScript, String.format("%s != null", alias), true);
+        }
+        if (ew) {
+            sqlScript += NEWLINE;
+            sqlScript += SqlScriptUtils.convertIf(SqlScriptUtils.unSafeParam(U_WRAPPER_SQL_SET),
+                String.format("%s != null and %s != null", WRAPPER, U_WRAPPER_SQL_SET), false);
+        }
+//        sqlScript = SqlScriptUtils.convertSet(sqlScript);
+        return sqlScript;
+    }
 
     /**
      * SQL 注释
